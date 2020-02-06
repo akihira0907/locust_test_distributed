@@ -1,0 +1,50 @@
+version: "3"
+
+services:
+
+  locust-master:
+    image: locustio/locust
+    container_name:
+      locust-master
+    env_file: master-env.env
+    ports:
+      - "8089:8089"
+    volumes:
+      - ./tests:/locust
+    entrypoint:
+      - locust
+      - -f
+      - /locust/locustfile.py
+      - -H
+      - http://localhost:80
+      - --master
+
+  locust-slave1:
+    image: locustio/locust
+    container_name:
+      locust-slave1
+    env_file: slave-env.env
+    volumes:
+      - ./tests:/locust
+    depends_on:
+      - locust-master
+    entrypoint:
+      - locust
+      - -f
+      - /locust/locustfile.py
+      - --slave
+
+  locust-slave2:
+    image: locustio/locust
+    container_name:
+      locust-slave2
+    env_file: slave-env.env
+    volumes:
+      - ./tests:/locust
+    depends_on:
+      - locust-master
+    entrypoint:
+      - locust
+      - -f
+      - /locust/locustfile.py
+      - --slave
